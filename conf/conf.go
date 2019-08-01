@@ -42,6 +42,13 @@ func (c *Configuration) valid() error {
 	return nil
 }
 
+// parse token if using environment variable
+func (c *Configuration) parseEnv() error {
+	c.Token = os.ExpandEnv(c.Token)
+
+	return nil
+}
+
 // NewConfiguration read configuration file
 // and return *Configuration
 func NewConfiguration(path string) (*Configuration, error) {
@@ -56,7 +63,8 @@ func NewConfiguration(path string) (*Configuration, error) {
 	if errUn != nil {
 		return nil, errUn
 	}
-
+	
+	cf.parseEnv()
 	errValid := cf.valid()
 	if errValid != nil {
 		return nil, errValid

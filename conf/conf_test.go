@@ -111,6 +111,36 @@ func TestNewConfigurationParseError(t *testing.T) {
 	}
 }
 
+func TestNewConfigurationParseTokenEnv(t *testing.T) {
+	filePath := "/tmp/demo.yml"
+	defer os.Remove(filePath)
+	os.Setenv("TOKEN", "amazing")
+
+	errWrite := ioutil.WriteFile(filePath, []byte(`token: ${TOKEN}
+domains:
+  - example.com
+  - example.net
+records:
+  - type: A
+    name: www`), 0644)
+
+	if errWrite != nil {
+		t.Error("Failed to write file")
+		return
+	}
+
+	conf, errConf := NewConfiguration(filePath)
+	if errConf != nil {
+		t.Errorf("Got error: %s", errConf.Error())
+		return
+	}
+
+	if conf.Token != "amazing" {
+		t.Errorf("Expected amazing, got %s", conf.Token)
+		return
+	}
+}
+
 func TestNewConfigurationValid(t *testing.T) {
 	filePath := "/tmp/demo.yml"
 	defer os.Remove(filePath)
